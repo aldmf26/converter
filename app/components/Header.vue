@@ -6,11 +6,12 @@
     <div
       class="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-lg border border-gray-200 dark:border-gray-700"
     >
-      <span class="text-2xl">📦</span>
+      <UAvatar size="lg" src="/img/logo.png" alt="Converter Aldi Logo" />
       <span class="font-bold text-gray-900 dark:text-white"
         >Converter Aldi</span
       >
-      <UBadge color="primary" size="xs">v1.0</UBadge>
+      <UAvatar size="lg" src="/img/logo.png" alt="Converter Aldi Logo" />
+      <!-- <UBadge color="primary" size="xs">v1.0</UBadge> -->
     </div>
 
     <!-- Main Title -->
