@@ -82,5 +82,13 @@
         />
       </UBadge>
     </div>
+
+    <a
+      href="https://ko-fi.com/aldmfbeat"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <img src="/img/coffe.png" width="150" class="mx-auto" alt="" />
+    </a>
   </div>
 </template>
