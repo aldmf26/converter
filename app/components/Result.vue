@@ -1,90 +1,99 @@
 <script setup lang="ts">
-defineProps<{
+import { h, resolveComponent } from "vue";
+import type { TableColumn } from "@nuxt/ui";
+
+const UButton = resolveComponent("UButton");
+
+defineProps<{ format: string }>();
+
+// -------------------------
+// Types
+// -------------------------
+type BaseRow = {
+  id: string;
+  quality: string;
   format: string;
-}>();
+};
 
+type Musics = BaseRow & { format: "MP3" };
+type Videos = BaseRow & { format: "MP4" };
+
+// -------------------------
+// Tabs
+// -------------------------
 const items = [
-  {
-    label: "Music",
-    icon: "i-heroicons-musical-note-20-solid",
-    slot: "music",
-  },
-  {
-    label: "Video",
-    icon: "i-heroicons-video-camera-20-solid",
-    slot: "video",
-  },
+  { label: "Music", icon: "i-heroicons-musical-note-20-solid", slot: "music" },
+  { label: "Video", icon: "i-heroicons-video-camera-20-solid", slot: "video" },
 ];
 
-const dataMusic = ref([
-  {
-    quality: "320kbps",
-    format: "MP3",
-    action: "Download",
-  },
-  {
-    quality: "256kbps",
-    format: "MP3",
-    action: "Download",
-  },
-  {
-    quality: "128kbps",
-    format: "MP3",
-    action: "Download",
-  },
-]);
-const dataVideo = ref([
-  {
-    quality: "1080p",
-    format: "MP4",
-    action: "Download",
-  },
-  {
-    quality: "720p",
-    format: "MP4",
-    action: "Download",
-  },
-  {
-    quality: "480p",
-    format: "MP4",
-    action: "Download",
-  },
+// -------------------------
+// Data
+// -------------------------
+const dataMusic = ref<Musics[]>([
+  { id: "1", quality: "320kbps", format: "MP3" },
+  { id: "2", quality: "256kbps", format: "MP3" },
+  { id: "3", quality: "128kbps", format: "MP3" },
 ]);
 
-const columnsMusic = [
-  { key: "quality", label: "Quality" },
-  { key: "format", label: "Format" },
-  { key: "action", label: "Action" },
-  // kolom tombol
+const dataVideo = ref<Videos[]>([
+  { id: "1", quality: "1080p", format: "MP4" },
+  { id: "2", quality: "720p", format: "MP4" },
+  { id: "3", quality: "480p", format: "MP4" },
+]);
+
+// -------------------------
+// Reusable Columns Builder
+// -------------------------
+const createColumns = <T extends BaseRow>(): TableColumn<T>[] => [
+  { accessorKey: "id", header: "ID" },
+  { accessorKey: "quality", header: "Quality" },
+  { accessorKey: "format", header: "Format" },
+  {
+    id: "action",
+    header: "Action",
+    cell: ({ row }) =>
+      h(
+        UButton,
+        {
+          size: "xs",
+          color: "primary",
+          class: "cursor-pointer",
+          icon: "i-heroicons-arrow-down-tray-20-solid",
+          onClick: () => handleDownload(row.original),
+        },
+        () => "Download"
+      ),
+  },
 ];
 
-const columnsVideo = [
-  { key: "quality", label: "Quality" },
-  { key: "format", label: "Format" },
-  { key: "action", label: "Action" },
-  // kolom tombol
-];
+// final columns
+const columnsMusic = createColumns<Musics>();
+const columnsVideo = createColumns<Videos>();
 
-const handleDownload = (item: any) => {
-  console.log("Download:", item);
-  // Nanti ini akan trigger download logic
-  alert(`Download ${item.quality} ${item.format}`);
+// -------------------------
+// Handler
+// -------------------------
+const handleDownload = (row: BaseRow) => {
+  alert(`Download id:${row.id} ${row.quality} ${row.format}`);
 };
 </script>
+
 <template>
   <div
     class="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom duration-500"
   >
     <UCard class="shadow-2xl border-2 border-gray-200 dark:border-gray-700">
+      <!-- Header -->
       <template #header>
         <div class="flex items-start gap-4">
           <div
-            class="flex-shrink-0 w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl shadow-lg"
+            class="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl shadow-lg"
           >
             🎥
           </div>
+
           <div class="flex-1 min-w-0">
-            <h3 class="font-bold text-xl text-gray-900 dark:text-white mb-1">
+            <h3 class="font-bold text-xl dark:text-white mb-1">
               Never Gonna Give You Up
             </h3>
             <div
@@ -100,20 +109,19 @@ const handleDownload = (item: any) => {
 
       <!-- Tabs -->
       <UTabs :items="items" class="w-full">
-        <!-- Tab Music -->
         <template #music>
-          <UTable :data="dataMusic" class="w-full"> </UTable>
+          <UTable :data="dataMusic" :columns="columnsMusic" class="w-full" />
         </template>
 
-        <!-- Tab Video -->
         <template #video>
-          <UTable :data="dataVideo" class="w-full"> </UTable>
+          <UTable :data="dataVideo" :columns="columnsVideo" class="w-full" />
         </template>
       </UTabs>
 
-      <!-- Button Reset -->
+      <!-- Footer -->
       <template #footer>
         <UButton
+          class="cursor-pointer"
           size="lg"
           color="success"
           variant="soft"

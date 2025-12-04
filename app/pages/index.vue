@@ -1,6 +1,4 @@
 <script setup lang="ts">
-
-
 const url = ref("");
 const format = ref<"mp3" | "mp4">("mp4");
 const showResult = ref(false);
@@ -20,6 +18,15 @@ useSeoMeta({
   description:
     "Download video & audio dari YouTube, TikTok, Instagram tanpa watermark. Gratis selamanya.",
 });
+
+const pasteFromClipboard = async () => {
+  try {
+    const text = await navigator.clipboard.readText();
+    url.value = text;
+  } catch (err) {
+    alert("Tidak bisa paste, izin clipboard ditolak.");
+  }
+};
 </script>
 
 <template>
@@ -67,6 +74,25 @@ useSeoMeta({
                   >
                     Paste link video
                   </h3>
+                  <!-- TOMBOL CLEAR -->
+                  <UButton
+                    variant="soft"
+                    color="primary"
+                    icon="i-heroicons-clipboard-20-solid"
+                    :padded="false"
+                    class="ms-2 cursor-pointer"
+                    @click="pasteFromClipboard"
+                    >Paste</UButton
+                  >
+                  <UButton
+                    v-if="url"
+                    variant="soft"
+                    color="error"
+                    class="cursor-pointer"
+                    icon="i-heroicons-x-mark-20-solid"
+                    :padded="false"
+                    @click="url = ''"
+                  />
                 </div>
 
                 <UInput
@@ -75,106 +101,11 @@ useSeoMeta({
                   placeholder="https://youtube.com/watch?v=dQw4w9WgXcQ"
                   icon="i-heroicons-link"
                   :ui="{
-                    icon: { trailing: { pointer: '' } },
                     base: 'text-lg',
                   }"
                   class="text-lg shadow-lg w-full"
                 >
-                  <template #trailing>
-                    <UButton
-                      v-if="url"
-                      color="gray"
-                      variant="link"
-                      icon="i-heroicons-x-mark-20-solid"
-                      :padded="false"
-                      @click="url = ''"
-                    />
-                  </template>
                 </UInput>
-              </div>
-
-              <!-- Step 2 -->
-              <div class="hidden space-y-4">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-white font-bold shadow-lg"
-                  >
-                    2
-                  </div>
-                  <h3
-                    class="text-lg font-semibold text-gray-900 dark:text-white"
-                  >
-                    Pilih format output
-                  </h3>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                  <!-- MP4 Option -->
-                  <button
-                    class="group relative p-6 rounded-2xl border-2 transition-all duration-300"
-                    :class="
-                      format === 'mp4'
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30 shadow-lg scale-105'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:scale-102'
-                    "
-                    @click="format = 'mp4'"
-                  >
-                    <div class="flex flex-col items-center gap-3">
-                      <div class="text-4xl">🎬</div>
-                      <div class="text-center">
-                        <div
-                          class="font-bold text-lg text-gray-900 dark:text-white"
-                        >
-                          MP4
-                        </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
-                          Video Full HD
-                        </div>
-                      </div>
-                      <UBadge
-                        v-if="format === 'mp4'"
-                        color="primary"
-                        size="xs"
-                        class="absolute top-3 right-3"
-                      >
-                        ✓ Dipilih
-                      </UBadge>
-                    </div>
-                  </button>
-
-                  <!-- MP3 Option -->
-                  <button
-                    class="group relative p-6 rounded-2xl border-2 transition-all duration-300"
-                    :class="
-                      format === 'mp3'
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30 shadow-lg scale-105'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:scale-102'
-                    "
-                    @click="format = 'mp3'"
-                  >
-                    <div class="flex flex-col items-center gap-3">
-                      <div class="text-4xl">🎵</div>
-                      <div class="text-center">
-                        <div
-                          class="font-bold text-lg text-gray-900 dark:text-white"
-                        >
-                          MP3
-                        </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
-                          Audio Only
-                        </div>
-                      </div>
-                      <UBadge
-                        v-if="format === 'mp3'"
-                        color="primary"
-                        size="xs"
-                        class="absolute top-3 right-3"
-                      >
-                        ✓ Dipilih
-                      </UBadge>
-                    </div>
-                  </button>
-                </div>
               </div>
 
               <!-- Convert Button -->
@@ -182,7 +113,7 @@ useSeoMeta({
                 size="xl"
                 block
                 color="primary"
-                class="text-lg font-semibold shadow-lg hover:shadow-xl transition-shadow"
+                class="text-lg cursor-pointer font-semibold shadow-lg hover:shadow-xl transition-shadow"
                 :disabled="!url"
                 @click="handleConvert"
               >
@@ -237,10 +168,7 @@ useSeoMeta({
           v-else
           class="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom duration-500"
         >
-          <Result
-            :format="format"
-            @reset="reset"
-          />
+          <Result :format="format" @reset="reset" />
         </div>
       </UContainer>
     </div>
