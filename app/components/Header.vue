@@ -7,7 +7,9 @@
       class="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-lg border border-gray-200 dark:border-gray-700"
     >
       <span class="text-2xl">📦</span>
-      <span class="font-bold text-gray-900 dark:text-white">VidBox</span>
+      <span class="font-bold text-gray-900 dark:text-white"
+        >Converter Aldi</span
+      >
       <UBadge color="primary" size="xs">v1.0</UBadge>
     </div>
 
