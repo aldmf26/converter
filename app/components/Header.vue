@@ -40,8 +40,8 @@
           xmlns="http://www.w3.org/2000/svg"
           x="0px"
           y="0px"
-          width="50"
-          height="50"
+          width="40"
+          height="40"
           viewBox="0 0 48 48"
         >
           <path
@@ -64,16 +64,16 @@
       </UBadge>
       <UBadge color="neutral" variant="soft" size="lg" class="px-4 py-2">
         <img
-          width="50"
-          height="50"
-          src="https://img.icons8.com/ios/50/tiktok.png"
+          width="40"
+          height="40"
+          src="https://img.icons8.com/color-glass/48/tiktok.png"
           alt="tiktok"
         />
       </UBadge>
       <UBadge color="success" variant="soft" size="lg" class="px-4 py-2">
         <img
-          width="50"
-          height="50"
+          width="40"
+          height="40"
           src="https://img.icons8.com/fluency/48/instagram-new.png"
           alt="instagram-new"
         />
