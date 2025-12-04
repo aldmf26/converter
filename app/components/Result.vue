@@ -3,9 +3,6 @@ import { h, resolveComponent } from "vue";
 import type { TableColumn } from "@nuxt/ui";
 
 const UButton = resolveComponent("UButton");
-
-defineProps<{ format: string }>();
-
 // -------------------------
 // Types
 // -------------------------
