@@ -26,15 +26,6 @@
             >
               Paste
             </UButton>
-
-            <UButton
-              v-if="url"
-              variant="soft"
-              color="error"
-              icon="i-heroicons-x-mark"
-              :padded="false"
-              @click="$emit('clear')"
-            />
           </div>
         </h3>
       </div>
@@ -47,7 +38,18 @@
         icon="i-heroicons-link"
         class="text-lg shadow-lg w-full"
         autofocus
-      />
+      >
+        <template #trailing>
+          <UButton
+            v-if="url"
+            variant="soft"
+            color="error"
+            icon="i-heroicons-x-mark"
+            :padded="false"
+            @click="$emit('clear')"
+          />
+        </template>
+      </UInput>
 
       <UButton
         size="xl"
