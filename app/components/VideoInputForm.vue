@@ -12,26 +12,31 @@
           1
         </div>
 
-        <h3 class="text-xl font-semibold">Paste link video</h3>
-
-        <UButton
-          variant="soft"
-          color="primary"
-          icon="i-heroicons-clipboard"
-          :padded="false"
-          @click="$emit('paste')"
+        <h3
+          class="text-xl font-semibold md:flex md:flex-row md:items-center md:gap-4"
         >
-          Paste
-        </UButton>
+          Paste link video
+          <div class="flex md:mt-0 md:ml-auto">
+            <UButton
+              variant="soft"
+              color="primary"
+              icon="i-heroicons-clipboard"
+              :padded="false"
+              @click="$emit('paste')"
+            >
+              Paste
+            </UButton>
 
-        <UButton
-          v-if="url"
-          variant="soft"
-          color="error"
-          icon="i-heroicons-x-mark"
-          :padded="false"
-          @click="$emit('clear')"
-        />
+            <UButton
+              v-if="url"
+              variant="soft"
+              color="error"
+              icon="i-heroicons-x-mark"
+              :padded="false"
+              @click="$emit('clear')"
+            />
+          </div>
+        </h3>
       </div>
 
       <!-- Input dengan defineModel (Vue 3.5+) -->
@@ -48,12 +53,12 @@
         size="xl"
         block
         color="primary"
+        icon="i-heroicons-sparkles"
         :loading="loading"
         :disabled="!url || loading"
         class="font-bold text-lg cursor-pointer shadow-lg hover:shadow-xl transition-shadow"
         @click="$emit('submit')"
       >
-        <span class="i-heroicons-sparkles w-6 h-6 mr-2" />
         {{ loading ? "Sedang memproses..." : "Download Sekarang" }}
       </UButton>
 

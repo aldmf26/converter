@@ -12,7 +12,7 @@
     </div>
 
     <!-- Main Title -->
-    <h1 class="text-5xl md:text-7xl font-black mb-6">
+    <h1 class="text-2xl md:text-5xl font-black mb-6">
       <span
         class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
       >
