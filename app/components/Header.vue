@@ -22,7 +22,7 @@
         Download Video & Music
       </span>
       <br />
-      <span class="text-gray-900 dark:text-white"> Tanpa Watermark </span>
+      <span class="text-gray-900 dark:text-white"> Tanpa Iklan </span>
     </h1>
 
     <!-- Subtitle -->
@@ -33,7 +33,7 @@
       <strong class="font-semibold">YouTube, TikTok, Instagram</strong> ke MP3
       atau MP4.
       <br class="hidden md:block" />
-      Gratis, cepat, tanpa iklan.
+      Gratis, cepat, tanpa iklan dan watermark.
     </p>
 
     <!-- Platform Badges -->
