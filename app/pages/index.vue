@@ -14,9 +14,6 @@ const {
   <div
     class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950"
   >
-    <!-- Animated Background Blobs -->
-    <BackgroundBlobs />
-
     <!-- Main Content -->
     <UContainer class="relative py-16 md:py-24">
       <Header />
