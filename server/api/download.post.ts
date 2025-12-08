@@ -1,53 +1,61 @@
+import { defineEventHandler, getQuery, createError } from 'h3'
+import ytdl from '@distube/ytdl-core'
+
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  
-  const { url, platform } = body
+  const query = getQuery(event)
+  const url = query.url as string
+  const itag = query.itag ? parseInt(query.itag as string) : undefined
 
-  // Validasi input
-  if (!url || !platform) {
-    throw createError({
-      statusCode: 400,
-      message: 'URL dan platform harus diisi'
-    })
-  }
-
-  // Validasi platform
-  if (!['youtube', 'tiktok', 'instagram'].includes(platform)) {
-    throw createError({
-      statusCode: 400,
-      message: 'Platform tidak didukung'
+  if (!url || !ytdl.validateURL(url)) {
+    throw createError({ 
+      statusCode: 400, 
+      statusMessage: 'Link YouTube tidak valid!' 
     })
   }
 
   try {
-    // TODO: Nanti kita akan fetch video info dari external API
-    // Untuk sekarang, return dummy data dulu
-    
-    return {
-      success: true,
-      data: {
-        title: 'Demo Video Title',
-        thumbnail: 'https://via.placeholder.com/640x360',
-        platform,
-        duration: '3:45',
-        qualities: {
-          video: [
-            { quality: '1080p', format: 'MP4', size: '25.5 MB' },
-            { quality: '720p', format: 'MP4', size: '15.2 MB' },
-            { quality: '480p', format: 'MP4', size: '8.5 MB' },
-          ],
-          audio: [
-            { quality: '320kbps', format: 'MP3', size: '4.2 MB' },
-            { quality: '256kbps', format: 'MP3', size: '3.5 MB' },
-            { quality: '128kbps', format: 'MP3', size: '2.1 MB' },
-          ]
-        }
-      }
-    }
+    const agent = ytdl.createAgent([], { localAddress: undefined })
+    const info = await ytdl.getInfo(url, { agent })
+
+    // Pilih format berdasarkan itag atau default
+    const format = itag 
+      ? ytdl.chooseFormat(info.formats, { quality: itag })
+      : ytdl.chooseFormat(info.formats, { 
+          quality: 'highestvideo',
+          filter: format => format.hasVideo && format.hasAudio
+        }) || ytdl.chooseFormat(info.formats, { quality: 'highest' })
+
+    const title = info.videoDetails.title
+      .replace(/[^\w\s-]/gi, '_')
+      .replace(/\s+/g, '_')
+      .substring(0, 100)
+
+    const extension = format.container || 'mp4'
+
+    event.node.res.setHeader('Content-Type', format.mimeType || 'video/mp4')
+    event.node.res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${title}.${extension}"`
+    )
+    event.node.res.setHeader('Cache-Control', 'no-store, max-age=0')
+
+    // Stream langsung!
+    const stream = ytdl.downloadFromInfo(info, { format, agent })
+    stream.pipe(event.node.res)
+
+    // Cleanup saat selesai/aborted
+    event.node.res.on('close', () => {
+      stream.destroy()
+      event.node.res.end()
+    })
+
   } catch (error: any) {
+    console.error('ytdl error:', error.message)
     throw createError({
       statusCode: 500,
-      message: error.message || 'Gagal mengambil info video'
+      statusMessage: error.message.includes('private') || error.message.includes('unavailable')
+        ? 'Video private, age-restricted, atau tidak tersedia'
+        : 'Gagal download. Coba link lain atau refresh.'
     })
   }
 })

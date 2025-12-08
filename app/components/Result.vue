@@ -3,48 +3,63 @@ import { h, resolveComponent } from "vue";
 import type { TableColumn } from "@nuxt/ui";
 
 const UButton = resolveComponent("UButton");
+
+// Get data from composable
+const { videoInfo } = useVideoDownloader();
+
 // -------------------------
 // Types
 // -------------------------
-type BaseRow = {
+type QualityRow = {
   id: string;
   quality: string;
   format: string;
+  size: string;
+  downloadUrl: string;
 };
-
-type Musics = BaseRow & { format: "MP3" };
-type Videos = BaseRow & { format: "MP4" };
 
 // -------------------------
 // Tabs
 // -------------------------
 const items = [
-  { label: "Music", icon: "i-heroicons-musical-note-20-solid", slot: "music" },
+  { label: "Audio", icon: "i-heroicons-musical-note-20-solid", slot: "music" },
   { label: "Video", icon: "i-heroicons-video-camera-20-solid", slot: "video" },
 ];
 
 // -------------------------
-// Data
+// Computed Data dari API
 // -------------------------
-const dataMusic = ref<Musics[]>([
-  { id: "1", quality: "320kbps", format: "MP3" },
-  { id: "2", quality: "256kbps", format: "MP3" },
-  { id: "3", quality: "128kbps", format: "MP3" },
-]);
+const dataMusic = computed<QualityRow[]>(() => {
+  if (!videoInfo.value?.qualities.audio) return [];
 
-const dataVideo = ref<Videos[]>([
-  { id: "1", quality: "1080p", format: "MP4" },
-  { id: "2", quality: "720p", format: "MP4" },
-  { id: "3", quality: "480p", format: "MP4" },
-]);
+  return videoInfo.value.qualities.audio.map((item, index) => ({
+    id: `audio-${index}`,
+    quality: item.quality,
+    format: item.format,
+    size: item.size,
+    downloadUrl: item.downloadUrl,
+  }));
+});
+
+const dataVideo = computed<QualityRow[]>(() => {
+  if (!videoInfo.value?.qualities.video) return [];
+
+  return videoInfo.value.qualities.video.map((item, index) => ({
+    id: `video-${index}`,
+    quality: item.quality,
+    format: item.format,
+    size: item.size,
+    downloadUrl: item.downloadUrl,
+  }));
+});
 
 // -------------------------
-// Reusable Columns Builder
+// Columns
 // -------------------------
-const createColumns = <T extends BaseRow>(): TableColumn<T>[] => [
-  { accessorKey: "id", header: "ID" },
+const createColumns = (): TableColumn<QualityRow>[] => [
   { accessorKey: "quality", header: "Quality" },
   { accessorKey: "format", header: "Format" },
+  { accessorKey: "size", header: "Size" },
   {
     id: "action",
     header: "Action",
@@ -52,7 +67,7 @@ const createColumns = <T extends BaseRow>(): TableColumn<T>[] => [
       h(
         UButton,
         {
-          size: "xs",
+          size: "sm",
           color: "primary",
           class: "cursor-pointer",
           icon: "i-heroicons-arrow-down-tray-20-solid",
@@ -63,15 +78,64 @@ const createColumns = <T extends BaseRow>(): TableColumn<T>[] => [
   },
 ];
 
-// final columns
-const columnsMusic = createColumns<Musics>();
-const columnsVideo = createColumns<Videos>();
+const columnsMusic = createColumns();
+const columnsVideo = createColumns();
 
 // -------------------------
-// Handler
+// Platform Badge Color
 // -------------------------
-const handleDownload = (row: BaseRow) => {
-  alert(`Download id:${row.id} ${row.quality} ${row.format}`);
+const platformColor = computed(() => {
+  const colors: Record<string, string> = {
+    youtube: "error",
+    tiktok: "success",
+    instagram: "neutral",
+  };
+  return colors[videoInfo.value?.platform || ""] || "gray";
+});
+
+// -------------------------
+// Platform Icon
+// -------------------------
+const platformIcon = computed(() => {
+  const icons: Record<string, string> = {
+    youtube: "🎥",
+    tiktok: "🎵",
+    instagram: "📸",
+  };
+  return icons[videoInfo.value?.platform || ""] || "🎬";
+});
+
+// -------------------------
+// Handler - Download REAL
+// -------------------------
+const isDownloading = ref(false);
+
+const handleDownload = async (row: QualityRow) => {
+  if (isDownloading.value || !videoInfo.value) return;
+
+  isDownloading.value = true;
+
+  try {
+    // Trigger download dengan itag specific
+    const downloadUrl = row.downloadUrl;
+
+    // Open in new window to trigger download
+    window.open(downloadUrl, "_blank");
+
+    console.log("Downloading:", {
+      title: videoInfo.value.title,
+      quality: row.quality,
+      format: row.format,
+    });
+  } catch (error: any) {
+    alert("Gagal download. Coba lagi.");
+    console.error("Download error:", error);
+  } finally {
+    // Reset setelah 2 detik
+    setTimeout(() => {
+      isDownloading.value = false;
+    }, 2000);
+  }
 };
 </script>
 
@@ -83,35 +147,57 @@ const handleDownload = (row: BaseRow) => {
       <!-- Header -->
       <template #header>
         <div class="flex items-start gap-4">
-          <div
-            class="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl shadow-lg"
-          >
-            🎥
-          </div>
-
+          <!-- Info -->
           <div class="flex-1 min-w-0">
             <h3 class="font-bold text-xl dark:text-white mb-1">
-              Never Gonna Give You Up
+              {{ videoInfo?.title || "Loading..." }}
             </h3>
             <div
               class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
             >
-              <UBadge color="error" variant="subtle" size="xs">YouTube</UBadge>
-              <span>•</span>
-              <span>Rick Astley</span>
+              <UBadge :color="platformColor" size="xs">
+                {{ videoInfo?.platform?.toUpperCase() }}
+              </UBadge>
+              <span v-if="videoInfo?.duration">•</span>
+              <span v-if="videoInfo?.duration">{{ videoInfo.duration }}</span>
             </div>
           </div>
         </div>
       </template>
 
+      <!-- Thumbnail (Optional) -->
+      <div v-if="videoInfo?.thumbnail" class="mb-6 rounded-xl overflow-hidden">
+        <img
+          :src="videoInfo.thumbnail"
+          :alt="videoInfo.title"
+          class="w-full h-auto"
+        />
+      </div>
+
       <!-- Tabs -->
       <UTabs :items="items" class="w-full">
         <template #music>
-          <UTable :data="dataMusic" :columns="columnsMusic" class="w-full" />
+          <UTable
+            v-if="dataMusic.length > 0"
+            :data="dataMusic"
+            :columns="columnsMusic"
+            class="w-full"
+          />
+          <div v-else class="text-center py-8 text-gray-500">
+            No audio qualities available
+          </div>
         </template>
 
         <template #video>
-          <UTable :data="dataVideo" :columns="columnsVideo" class="w-full" />
+          <UTable
+            v-if="dataVideo.length > 0"
+            :data="dataVideo"
+            :columns="columnsVideo"
+            class="w-full"
+          />
+          <div v-else class="text-center py-8 text-gray-500">
+            No video qualities available
+          </div>
         </template>
       </UTabs>
 

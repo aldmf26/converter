@@ -1,15 +1,14 @@
-// composables/useVideoDownloader.ts
-
 type Platform = 'youtube' | 'tiktok' | 'instagram' | null
-
 type VideoInfo = {
   title: string
   thumbnail: string
   platform: string
   duration: string
+  downloadUrl: string
+  audioUrl: string
   qualities: {
-    video: Array<{ quality: string; format: string; size: string }>
-    audio: Array<{ quality: string; format: string; size: string }>
+    video: Array<{ quality: string; format: string; size: string; itag: string }>
+    audio: Array<{ quality: string; format: string; size: string; itag: string }>
   }
 }
 
@@ -18,25 +17,20 @@ export const useVideoDownloader = () => {
   const showResult = ref(false)
   const isLoading = ref(false)
   const detectedPlatform = ref<Platform>(null)
-  const videoInfo = ref<VideoInfo | null>(null)
+    const videoInfo = useState<VideoInfo | null>("vd-videoInfo", () => null)
   const error = ref<string | null>(null)
 
-  // Deteksi platform dari URL
   const detectPlatform = (videoUrl: string): Platform => {
     const urlLower = videoUrl.toLowerCase()
-    
     if (urlLower.includes('youtube.com') || urlLower.includes('youtu.be')) {
       return 'youtube'
     }
-    
     if (urlLower.includes('tiktok.com')) {
       return 'tiktok'
     }
-    
     if (urlLower.includes('instagram.com')) {
       return 'instagram'
     }
-    
     return null
   }
 
@@ -52,46 +46,53 @@ export const useVideoDownloader = () => {
   const clearUrl = () => {
     url.value = ""
     detectedPlatform.value = null
-        error.value = null
-
+    error.value = null
   }
 
   const handleConvert = async () => {
     if (!url.value.trim()) {
-      alert("Masukkan link video terlebih dahulu!")
+      alert("Masukan link video terlebih dahulu!")
       return
     }
 
-    // Deteksi platform
     const platform = detectPlatform(url.value)
     detectedPlatform.value = platform
-
     if (!platform) {
       alert("Link tidak valid! Hanya support YouTube, TikTok, dan Instagram.")
       return
     }
 
-    // Alert platform yang terdeteksi
-    const platformNames = {
-      youtube: 'YouTube',
-      tiktok: 'TikTok',
-      instagram: 'Instagram'
-    }
-    
-    alert(`Platform terdeteksi: ${platformNames[platform]}`)
+    // alert(`Platform terdeteksi: ${platform}`)
 
     isLoading.value = true
     error.value = null
-    
+
     try {
-      // Call API untuk fetch video info
-      const response: { success: boolean; data: VideoInfo | null } = await $fetch('api/download', { 
-        method: 'POST', 
-        body: { url: url.value, platform } 
+      const response = await $fetch('/api/video-info', {
+        method: 'POST',
+        body: {
+          url: url.value,
+          platform
+        }
       })
-      
+
       if (response.success && response.data) {
-        videoInfo.value = response.data
+        console.log('Video info received:', response.data)
+
+        const datas = response.data
+        videoInfo.value = {
+          title: datas.title,
+          thumbnail: datas.thumbnail,
+          platform: datas.platform,
+          duration: datas.duration,
+          downloadUrl: datas.url,
+          audioUrl: datas.url,
+          qualities: {
+            video: datas.qualities.video,
+            audio: datas.qualities.audio
+          }
+        }
+
         showResult.value = true
       }
     } catch (err: any) {
@@ -103,6 +104,7 @@ export const useVideoDownloader = () => {
     }
   }
 
+
   const reset = () => {
     showResult.value = false
     url.value = ""
@@ -110,7 +112,6 @@ export const useVideoDownloader = () => {
     videoInfo.value = null
     error.value = null
   }
-
   return {
     url,
     showResult: readonly(showResult),
@@ -121,6 +122,6 @@ export const useVideoDownloader = () => {
     pasteFromClipboard,
     clearUrl,
     handleConvert,
-    reset,
+    reset
   }
 }
