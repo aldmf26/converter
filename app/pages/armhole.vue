@@ -60,13 +60,8 @@ const kerung = computed(() => {
 
 const hasResult = computed(() => armhole.value > 0);
 
-const title = computed<string>(() => {
-  if (route.path === "/armhole") return "Armhole Calculator - By JeneryMF";
-  return "Converter Aldi";
-});
-
 useHead({
-  title: title,
+  title: "Armhole Calculator - By JeneryMF",
 });
 </script>
 
