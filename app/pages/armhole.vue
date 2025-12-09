@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
 
+const title = computed<string>(() => {
+  if (route.path === "/armhole") return "Armhole Calculator - By JeneryMF";
+  return "Converter Aldi";
+});
+
+useHead({
+  title: title,
+});
+
 const route = useRoute();
 
 const items = computed<NavigationMenuItem[]>(() => [
