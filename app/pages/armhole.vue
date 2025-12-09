@@ -84,71 +84,52 @@ const hasResult = computed(() => armhole.value > 0);
     </template>
 
     <template #body>
-      <UNavigationMenu
-        :items="items"
-        orientation="vertical"
-        class="-mx-2.5 sm:-mx-0"
-      />
+      <UNavigationMenu :items="items" orientation="vertical" class="-mx-2.5" />
     </template>
   </UHeader>
 
-  <UContainer
-    class="mt-8 flex flex-col items-center justify-center w-full px-4"
-  >
-    <UCard
-      variant="subtle"
-      class="mb-8 w-full max-w-2xl sm:max-w-none shadow-lg"
-    >
+  <UContainer class="mt-4 sm:mt-8 flex flex-col items-center justify-center w-full px-3 sm:px-4">
+    <UCard variant="subtle" class="mb-8 w-full max-w-2xl shadow-lg">
       <template #header>
-        <div class="text-center space-y-3">
-          <h2
-            class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent"
-          >
-            Arm Hole Calculator
+        <div class="text-center space-y-2 sm:space-y-3">
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent leading-tight">
+            💖 Arm Hole Calculator
           </h2>
-          <p class="text-sm text-gray-500 dark:text-gray-400">by JeneryMF</p>
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">by JeneryMF</p>
         </div>
       </template>
 
       <!-- Urutan: 1. Rumus, 2. Input, 3. Hasil -->
-      <div class="space-y-6">
+      <div class="space-y-4 sm:space-y-6">
         <!-- Rumus Section - Collapsed jadi lebih clean -->
         <details class="group">
-          <summary
-            class="cursor-pointer text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 hover:text-pink-600 transition-colors"
-          >
+          <summary class="cursor-pointer text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 hover:text-pink-600 transition-colors">
             <span class="group-open:rotate-90 transition-transform">▶</span>
-            Lihat Rumus
+            📖 Lihat Rumus
           </summary>
-          <div
-            class="mt-3 pl-6 space-y-2 text-sm text-gray-600 dark:text-gray-400"
-          >
+          <div class="mt-3 pl-4 sm:pl-6 space-y-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             <div class="flex justify-between border-b pb-1">
               <span>TP</span>
-              <span class="font-mono">= Armhole ÷ 4</span>
+              <span class="font-mono text-xs sm:text-sm">= Armhole ÷ 4</span>
             </div>
             <div class="flex justify-between border-b pb-1">
               <span>Bisep</span>
-              <span class="font-mono">= Armhole ÷ 2</span>
+              <span class="font-mono text-xs sm:text-sm">= Armhole ÷ 2</span>
             </div>
             <div class="flex justify-between border-b pb-1">
               <span>Kerung</span>
-              <span class="font-mono">= Bisep ÷ 4</span>
+              <span class="font-mono text-xs sm:text-sm">= Bisep ÷ 4</span>
             </div>
           </div>
         </details>
 
         <!-- Input Section dengan styling lebih menarik -->
-        <div
-          class="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-6 space-y-4 sm:p-8"
-        >
-          <label
-            class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
-          >
-            Masukan Ukuran Armhole
+        <div class="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 sm:p-6 space-y-3 sm:space-y-4">
+          <label class="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
+            📏 Masukkan Ukuran Armhole
           </label>
           <UInput
-            class="w-full sm:w-1/2"
+            class="w-full"
             size="xl"
             v-model="value"
             type="number"
@@ -166,121 +147,68 @@ const hasResult = computed(() => armhole.value > 0);
               />
             </template>
           </UInput>
-          <p class="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
-            Tip: Masukan angka dalam cm atau inch sesuai kebutuhan
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            💡 Tip: Masukkan angka dalam cm atau inch sesuai kebutuhan
           </p>
         </div>
 
         <!-- Hasil Section - Only show when there's input -->
-        <div
-          v-if="hasResult"
-          class="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500"
-        >
-          <div
-            class="h-px bg-gradient-to-r from-transparent via-pink-300 to-transparent sm:h-0"
-          ></div>
-
+        <div v-if="hasResult" class="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div class="h-px bg-gradient-to-r from-transparent via-pink-300 to-transparent"></div>
+          
           <!-- Hasil Perhitungan dengan card masing-masing -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div
-              class="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-pink-200 dark:border-pink-900 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                TP
-              </div>
-              <div class="text-2xl font-bold text-pink-600 dark:text-pink-400">
-                {{ tp }}
-              </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border-2 border-pink-200 dark:border-pink-900 shadow-sm hover:shadow-md transition-shadow">
+              <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">TP</div>
+              <div class="text-xl sm:text-2xl font-bold text-pink-600 dark:text-pink-400">{{ tp }}</div>
               <div class="text-xs text-gray-400 mt-1">{{ armhole }} ÷ 4</div>
             </div>
-
-            <div
-              class="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-purple-200 dark:border-purple-900 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                Bisep
-              </div>
-              <div
-                class="text-2xl font-bold text-purple-600 dark:text-purple-400"
-              >
-                {{ bisep }}
-              </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border-2 border-purple-200 dark:border-purple-900 shadow-sm hover:shadow-md transition-shadow">
+              <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Bisep</div>
+              <div class="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{{ bisep }}</div>
               <div class="text-xs text-gray-400 mt-1">{{ armhole }} ÷ 2</div>
             </div>
-
-            <div
-              class="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-indigo-200 dark:border-indigo-900 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                Kerung
-              </div>
-              <div
-                class="text-2xl font-bold text-indigo-600 dark:text-indigo-400"
-              >
-                {{ kerung }}
-              </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border-2 border-indigo-200 dark:border-indigo-900 shadow-sm hover:shadow-md transition-shadow">
+              <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Kerung</div>
+              <div class="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ kerung }}</div>
               <div class="text-xs text-gray-400 mt-1">{{ bisep }} ÷ 4</div>
             </div>
           </div>
 
           <!-- Ringkasan dalam box yang lebih eye-catching -->
-          <div
-            class="bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-950 dark:to-purple-950 rounded-xl p-6 border-2 border-pink-300 dark:border-pink-700 sm:p-8"
-          >
-            <h5
-              class="font-bold text-lg mb-4 text-gray-800 dark:text-gray-200 flex items-center gap-2"
-            >
-              <span class="text-2xl">📌</span> Ringkasan Ukuran
+          <div class="bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-950 dark:to-purple-950 rounded-xl p-4 sm:p-6 border-2 border-pink-300 dark:border-pink-700">
+            <h5 class="font-bold text-base sm:text-lg mb-3 sm:mb-4 text-gray-800 dark:text-gray-200 flex items-center gap-2">
+              <span class="text-xl sm:text-2xl">📌</span> Ringkasan Ukuran
             </h5>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                  Armhole
-                </div>
-                <div class="text-xl font-bold text-gray-800 dark:text-gray-100">
-                  {{ armhole }}
-                </div>
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1">Armhole</div>
+                <div class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100">{{ armhole }}</div>
               </div>
               <div>
-                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                  TP
-                </div>
-                <div class="text-xl font-bold text-pink-600 dark:text-pink-400">
-                  {{ tp }}
-                </div>
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1">TP</div>
+                <div class="text-lg sm:text-xl font-bold text-pink-600 dark:text-pink-400">{{ tp }}</div>
               </div>
               <div>
-                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                  Bisep
-                </div>
-                <div
-                  class="text-xl font-bold text-purple-600 dark:text-purple-400"
-                >
-                  {{ bisep }}
-                </div>
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1">Bisep</div>
+                <div class="text-lg sm:text-xl font-bold text-purple-600 dark:text-purple-400">{{ bisep }}</div>
               </div>
               <div>
-                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                  Kerung
-                </div>
-                <div
-                  class="text-xl font-bold text-indigo-600 dark:text-indigo-400"
-                >
-                  {{ kerung }}
-                </div>
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1">Kerung</div>
+                <div class="text-lg sm:text-xl font-bold text-indigo-600 dark:text-indigo-400">{{ kerung }}</div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Empty state ketika belum ada input -->
-        <div v-else class="text-center py-12 space-y-3">
-          <div class="text-6xl">✂️</div>
-          <p class="text-gray-500 dark:text-gray-400">
-            Masukan ukuran armhole untuk mulai menghitung
-          </p>
+        <div v-else class="text-center py-8 sm:py-12 space-y-3">
+          <div class="text-5xl sm:text-6xl">✂️</div>
+          <p class="text-sm sm:text-base text-gray-500 dark:text-gray-400 px-4">Masukkan ukuran armhole untuk mulai menghitung</p>
         </div>
-      </div></UCard
-    ></UContainer
-  >
+      </div>
+    </UCard>
+  </UContainer>
 </template>
