@@ -84,7 +84,7 @@ useHead({
           >
             📜 Riwayat Aktivitas
           </h2>
-          <UBadge color="pink" variant="soft" size="lg">
+          <UBadge color="neutral" variant="soft" size="lg">
             {{ historyData.length }} Aktivitas
           </UBadge>
         </div>

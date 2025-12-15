@@ -127,19 +127,5 @@ useHead({
         </p>
       </div>
     </form>
-
-    <template #footer>
-      <div class="text-center">
-        <UButton
-          to="/"
-          variant="ghost"
-          size="sm"
-          icon="i-lucide-arrow-left"
-          color="neutral"
-        >
-          Kembali ke Home
-        </UButton>
-      </div>
-    </template>
   </UCard>
 </template>
