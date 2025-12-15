@@ -1,35 +1,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
 
-const route = useRoute();
-
-const items = computed<NavigationMenuItem[]>(() => [
-  {
-    label: "Docs",
-    to: "/docs/getting-started",
-    icon: "i-lucide-book-open",
-    active: route.path.startsWith("/docs/getting-started"),
-  },
-  {
-    label: "Components",
-    to: "/docs/components",
-    icon: "i-lucide-box",
-    active: route.path.startsWith("/docs/components"),
-  },
-  {
-    label: "Figma",
-    icon: "i-simple-icons-figma",
-    to: "https://go.nuxt.com/figma-ui",
-    target: "_blank",
-  },
-  {
-    label: "Releases",
-    icon: "i-lucide-rocket",
-    to: "https://github.com/nuxt/ui/releases",
-    target: "_blank",
-  },
-]);
-
 const value = ref("");
 
 // Computed properties untuk kalkulasi
@@ -66,35 +37,7 @@ useHead({
 </script>
 
 <template>
-  <UHeader>
-    <template #title>
-      <Logo class="h-6 w-auto" />
-      <h1>JeneryMF</h1>
-    </template>
-
-    <template #right>
-      <UColorModeButton />
-
-      <UTooltip text="Open on Instagram" :kbds="['meta', 'G']">
-        <UButton
-          color="neutral"
-          variant="ghost"
-          to="https://instagram.com/@aldiiimf"
-          target="_blank"
-          icon="i-simple-icons-instagram"
-          aria-label="Instagram"
-        />
-      </UTooltip>
-    </template>
-
-    <template #body>
-      <UNavigationMenu :items="items" orientation="vertical" class="-mx-2.5" />
-    </template>
-  </UHeader>
-
-  <UContainer
-    class="mt-4 sm:mt-8 flex flex-col items-center justify-center w-full px-3 sm:px-4"
-  >
+ 
     <UCard variant="subtle" class="mb-8 w-full max-w-2xl shadow-lg">
       <template #header>
         <div class="text-center space-y-2 sm:space-y-3">
@@ -287,5 +230,4 @@ useHead({
         </div>
       </div>
     </UCard>
-  </UContainer>
 </template>
