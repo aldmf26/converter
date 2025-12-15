@@ -3,6 +3,7 @@ const { signIn } = useAuth();
 const router = useRouter();
 const route = useRoute();
 
+const show = ref(false);
 const email = ref("");
 const password = ref("");
 const loading = ref(false);
@@ -33,7 +34,6 @@ const handleLogin = async () => {
   }
 };
 
-const show = ref(false);
 
 useHead({
   title: "Login - JeneryMF Tools",
