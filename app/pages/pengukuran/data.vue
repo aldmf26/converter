@@ -60,7 +60,7 @@ useHead({
             >
               📊 Data Pengukuran
             </h2>
-            <NuxtLink to="/pengukuran-badan/create">
+            <NuxtLink to="/pengukuran/create">
               <UButton
                 color="pink"
                 icon="i-lucide-plus-circle"

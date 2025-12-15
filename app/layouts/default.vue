@@ -19,10 +19,6 @@
         />
       </UTooltip>
     </template>
-
-    <template #body>
-      <UNavigationMenu :items="items" orientation="vertical" class="-mx-2.5" />
-    </template>
   </UHeader>
   <UContainer
     class="sm:mt-8 flex flex-col items-center justify-center w-full px-3 sm:px-4"

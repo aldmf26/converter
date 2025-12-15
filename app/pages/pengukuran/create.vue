@@ -30,7 +30,7 @@ const handleSubmit = async () => {
   loading.value = false;
 
   // Redirect to data page
-  await router.push("/pengukuran-badan/data");
+  await router.push("/pengukuran/data");
 };
 
 const handleReset = () => {
@@ -55,8 +55,13 @@ useHead({
     <UCard variant="subtle" class="shadow-lg">
       <template #header>
         <div class="flex items-center gap-3">
-          <NuxtLink to="/pengukuran-badan/data">
-            <UButton variant="ghost" icon="i-lucide-arrow-left" size="sm">
+          <NuxtLink to="/pengukuran/data">
+            <UButton
+              variant="soft"
+              color="primary"
+              icon="i-lucide-arrow-left"
+              size="sm"
+            >
               Kembali
             </UButton>
           </NuxtLink>
