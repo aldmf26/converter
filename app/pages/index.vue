@@ -1,23 +1,4 @@
 <script setup lang="ts">
-import type { NavigationMenuItem } from "@nuxt/ui";
-
-const route = useRoute();
-
-const items = computed<NavigationMenuItem[]>(() => [
-  {
-    label: "Pengukuran Badan",
-    to: "/pengukuran-badan",
-    icon: "i-lucide-box",
-    active: route.path.startsWith("/pengukuran-badan"),
-  },
-  {
-    label: "Armhole Calculator",
-    to: "/armhole",
-    icon: "i-lucide-shirt",
-    active: route.path.startsWith("/armhole"),
-  },
-]);
-
 useHead({
   title: "Home - Sewing Tools by JeneryMF",
 });
