@@ -25,10 +25,10 @@
     </template>
   </UHeader>
   <UContainer
-    class="mt-4 sm:mt-8 flex flex-col items-center justify-center w-full px-3 sm:px-4"
+    class="sm:mt-8 flex flex-col items-center justify-center w-full px-3 sm:px-4"
   >
     <template v-if="$route.name !== 'index'">
-      <div class="mt-4 flex justify-center">
+      <div class="flex justify-center">
         <UButton
           color="primary"
           class="cursor-pointer mb-3"

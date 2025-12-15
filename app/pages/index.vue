@@ -1,6 +1,6 @@
 <script setup lang="ts">
 useHead({
-  title: "Home - Sewing Tools by JeneryMF",
+  title: "Home",
 });
 </script>
 
@@ -23,23 +23,11 @@ useHead({
       </template>
 
       <div class="space-y-6 sm:space-y-8">
-        <!-- Welcome Message -->
-        <div
-          class="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 sm:p-6 text-center"
-        >
-          <p
-            class="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed"
-          >
-            💖 Selamat datang! Pilih tool yang ingin kamu gunakan untuk membantu
-            perhitungan pola jahitanmu
-          </p>
-        </div>
-
         <!-- Tools Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <!-- Pengukuran Badan Card -->
           <NuxtLink
-            to="/pengukuran-badan"
+            to="/pengukuran"
             class="group block transform transition-all duration-300 hover:scale-105"
           >
             <div
