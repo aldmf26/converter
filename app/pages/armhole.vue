@@ -32,7 +32,17 @@ const kerung = computed(() => {
 const hasResult = computed(() => armhole.value > 0);
 
 useHead({
-  title: "Armhole Calculator - By JeneryMF",
+  title: "Kalkulator Armhole - Hitung TP, Bisep, Kerung | JeneryMF",
+  meta: [
+    {
+      name: "description",
+      content: "Kalkulator Armhole gratis untuk menghitung TP (Titik Puncak), Bisep, dan Kerung. Tool akurat untuk penjahit dalam membuat pola lengan baju.",
+    },
+    {
+      name: "keywords",
+      content: "kalkulator armhole, hitung TP, bisep, kerung, armhole calculator, pola lengan, ukuran armhole, JeneryMF",
+    },
+  ],
 });
 </script>
 

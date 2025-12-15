@@ -1,2 +1,9 @@
-User-Agent: *
-Disallow:
+# robots.txt for JeneryMF
+User-agent: *
+Allow: /
+Allow: /armhole
+Disallow: /pengukuran-badan
+Disallow: /login
+
+# Sitemap location
+Sitemap: https://jenerym.vercel.app/sitemap.xml
