@@ -25,14 +25,17 @@ const handleLogin = async () => {
 
   const { error } = await signIn(email.value, password.value);
 
+  loading.value = false;
+
   if (error) {
     errorMessage.value = error.message;
-    loading.value = false;
-  } else {
-    // Login berhasil, redirect ke halaman tujuan
-    await router.push(redirectTo.value);
+    return;
   }
+
+  await nextTick();
+  await router.push(redirectTo.value);
 };
+
 
 
 useHead({
