@@ -111,18 +111,23 @@ const handleSubmit = async () => {
       throw new Error("User belum login");
     }
 
-    const measurementsData: Record<string, string> = {};
+    // KUMPULKAN DALAM ARRAY BIAR URUTAN TERJAGA
+    const orderedMeasurements: { name: string; value: string }[] = [];
     fields.value.forEach((field) => {
       if (field.value.trim()) {
-        measurementsData[field.name] = field.value.trim();
+        orderedMeasurements.push({
+          name: field.name,
+          value: field.value.trim(),
+        });
       }
     });
 
+    // Simpan sebagai array (urutan pasti terjaga!)
     const { error } = await supabase.from("measurements").insert({
       user_id: session.user.id,
       client_name: clientName.value.trim(),
       date: measurementDate.value,
-      measurements: measurementsData,
+      measurements: orderedMeasurements, // ← ini array, bukan object
       notes: notes.value.trim() || null,
     });
 
@@ -242,6 +247,11 @@ useHead({
               <thead class="bg-pink-100 dark:bg-pink-950/30">
                 <tr>
                   <th
+                    class="text-left p-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
+                  >
+                    No
+                  </th>
+                  <th
                     class="text-left p-3 text-sm font-semibold text-gray-700 dark:text-gray-300 w-2/5"
                   >
                     Nama Ukuran
@@ -260,6 +270,13 @@ useHead({
                   :key="field.id"
                   class="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                 >
+                  <td class="p-3">
+                    <span
+                      class="text-sm font-medium text-gray-800 dark:text-gray-200"
+                    >
+                      {{ index + 1 }}
+                    </span>
+                  </td>
                   <td class="p-3">
                     <span
                       class="text-sm font-medium text-gray-800 dark:text-gray-200"

@@ -12,13 +12,27 @@ const searchQuery = ref("");
 const loading = ref(false);
 const errorMessage = ref("");
 
+// Helper untuk ambil nilai Armhole dengan aman
+const getArmholeValue = (measurements: any[]) => {
+  if (!Array.isArray(measurements)) return null;
+  const item = measurements.find(m => m.name === 'Armhole' || m.name === 'armhole');
+  if (!item || !item.value) return null;
+  const num = Number(item.value);
+  return isNaN(num) ? null : num;
+};
+
+const getArmholeDisplay = (measurements: any[]) => {
+  if (!Array.isArray(measurements)) return null;
+  const item = measurements.find(m => m.name === 'Armhole' || m.name === 'armhole');
+  return item ? item.value : null;
+};
+
 // ambil data dari supabase
 const fetchMeasurements = async () => {
   loading.value = true;
   errorMessage.value = "";
 
   try {
-    // ambil user dari session (AMAN, tidak undefined)
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -43,7 +57,6 @@ const fetchMeasurements = async () => {
   }
 };
 
-// fetch saat halaman dibuka
 onMounted(fetchMeasurements);
 
 // search filter
@@ -172,21 +185,24 @@ useHead({
           </div>
 
           <!-- Measurements -->
-          <!-- Measurements -->
           <div
-            v-if="item.measurements && Object.keys(item.measurements).length"
+            v-if="
+              item.measurements &&
+              Array.isArray(item.measurements) &&
+              item.measurements.length
+            "
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
           >
             <div
-              v-for="(value, key) in item.measurements"
-              :key="key"
+              v-for="(meas, index) in item.measurements"
+              :key="index"
               class="bg-white dark:bg-gray-800 rounded-md px-3 py-2 flex items-center justify-between"
             >
               <p class="text-xs text-gray-600 dark:text-gray-400 capitalize">
-                {{ key }}
+                {{ meas.name }}
               </p>
               <p class="text-sm font-semibold text-pink-600">
-                {{ value }} <span class="text-xs">cm</span>
+                {{ meas.value }} <span class="text-xs">cm</span>
               </p>
             </div>
           </div>
@@ -203,6 +219,23 @@ useHead({
               {{ item.notes }}
             </p>
           </div>
+          <hr class="my-4" />
+          <!-- Ringkasan Armhole -->
+          <details
+            v-if="getArmholeDisplay(item.measurements)"
+            class="md:w-1/2 w-full sm:w-1/4"
+          >
+            <summary
+              class="cursor-pointer text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 hover:text-pink-600 transition-colors select-none list-none"
+            >
+              <span class="group-open:rotate-90 transition-transform text-pink-500">▶</span>
+              💪 Ringkasan Armhole ({{ getArmholeDisplay(item.measurements) }} cm)
+            </summary>
+
+            <div class="mt-4">
+              <ArmholeSummary :armhole="getArmholeValue(item.measurements)!" />
+            </div>
+          </details>
         </div>
 
         <!-- EMPTY STATE -->
