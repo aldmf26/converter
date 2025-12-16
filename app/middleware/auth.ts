@@ -1,7 +1,11 @@
 export default defineNuxtRouteMiddleware((to) => {
   const user = useSupabaseUser();
 
-  // Jika user belum login, redirect ke halaman login
+  // ⏳ TUNGGU dulu state auth siap
+  if (user.value === undefined) {
+    return;
+  }
+
   if (!user.value) {
     return navigateTo({
       path: "/login",

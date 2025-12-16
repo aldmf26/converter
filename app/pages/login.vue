@@ -15,11 +15,6 @@ const redirectTo = computed(
 );
 
 const handleLogin = async () => {
-  if (!email.value || !password.value) {
-    errorMessage.value = "Email dan password harus diisi!";
-    return;
-  }
-
   loading.value = true;
   errorMessage.value = "";
 
@@ -32,7 +27,9 @@ const handleLogin = async () => {
     return;
   }
 
+  // Tunggu Supabase update user state
   await nextTick();
+
   await router.push(redirectTo.value);
 };
 
