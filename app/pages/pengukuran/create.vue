@@ -7,6 +7,7 @@ definePageMeta({
 const router = useRouter();
 const { user } = useAuth();
 const supabase = useSupabaseClient();
+const toast = useToast();
 
 // Default fields sesuai gambar
 const defaultFields = [
@@ -36,34 +37,60 @@ const defaultFields = [
 const clientName = ref("");
 const measurementDate = ref(new Date().toISOString().split("T")[0]);
 const fields = ref([...defaultFields]);
-const notes = ref(""); // Catatan tambahan
+const notes = ref("");
 const loading = ref(false);
 const errorMessage = ref("");
 
-// Modal untuk tambah field custom
-const showAddFieldModal = ref(false);
-const newFieldName = ref("");
+// Quick add field (inline)
+const quickAddFieldName = ref("");
+const isAddingField = ref(false);
 
 let fieldIdCounter = defaultFields.length + 1;
 
 const addCustomField = () => {
-  if (!newFieldName.value.trim()) return;
+  if (!quickAddFieldName.value.trim()) return;
 
   fields.value.push({
     id: fieldIdCounter++,
-    name: newFieldName.value.trim(),
+    name: quickAddFieldName.value.trim(),
     value: "",
     order: fields.value.length + 1,
   });
 
-  newFieldName.value = "";
-  showAddFieldModal.value = false;
+  quickAddFieldName.value = "";
+  isAddingField.value = false;
+
+  // Focus ke input field yang baru ditambah
+  nextTick(() => {
+    const lastInput = document.querySelector(
+      `input[data-field-id="${fieldIdCounter - 1}"]`
+    ) as HTMLInputElement;
+    lastInput?.focus();
+  });
 };
 
 const removeField = (id: number) => {
-  // Tidak bisa hapus jika hanya tersisa 1 field
   if (fields.value.length <= 1) return;
   fields.value = fields.value.filter((f) => f.id !== id);
+};
+
+// Handle Enter key untuk loncat ke field berikutnya
+const handleKeydown = (event: KeyboardEvent, currentIndex: number) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    const nextInput = document.querySelector(
+      `input[data-index="${currentIndex + 1}"]`
+    ) as HTMLInputElement;
+    if (nextInput) {
+      nextInput.focus();
+    } else {
+      // Jika sudah di field terakhir, focus ke notes
+      const notesTextarea = document.querySelector(
+        'textarea[name="notes"]'
+      ) as HTMLTextAreaElement;
+      notesTextarea?.focus();
+    }
+  }
 };
 
 const handleSubmit = async () => {
@@ -76,7 +103,14 @@ const handleSubmit = async () => {
   errorMessage.value = "";
 
   try {
-    // Convert fields array to object for JSONB
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.user) {
+      throw new Error("User belum login");
+    }
+
     const measurementsData: Record<string, string> = {};
     fields.value.forEach((field) => {
       if (field.value.trim()) {
@@ -84,25 +118,25 @@ const handleSubmit = async () => {
       }
     });
 
-    const { data, error } = await supabase
-      .from("measurements")
-      .insert({
-        user_id: user.value?.id,
-        client_name: clientName.value.trim(),
-        date: measurementDate.value,
-        measurements: measurementsData,
-        notes: notes.value.trim() || null,
-      })
-      .select()
-      .single();
+    const { error } = await supabase.from("measurements").insert({
+      user_id: session.user.id,
+      client_name: clientName.value.trim(),
+      date: measurementDate.value,
+      measurements: measurementsData,
+      notes: notes.value.trim() || null,
+    });
 
     if (error) throw error;
 
-    // Redirect ke data page
+    toast.add({
+      title: "Berhasil!",
+      description: "Pengukuran berhasil disimpan",
+      color: "success",
+    });
+
     await router.push("/pengukuran/data");
   } catch (error: any) {
     errorMessage.value = error.message || "Gagal menyimpan data";
-    console.error("Error saving measurement:", error);
   } finally {
     loading.value = false;
   }
@@ -122,7 +156,7 @@ useHead({
 </script>
 
 <template>
-  <div class="w-full max-w-4xl space-y-6">
+  <div class="w-full max-w-6xl space-y-6">
     <UCard variant="subtle" class="shadow-lg">
       <template #header>
         <div class="flex items-center gap-3">
@@ -140,18 +174,13 @@ useHead({
       </template>
 
       <form @submit.prevent="handleSubmit" class="space-y-6">
-        <!-- Alert Error -->
         <UAlert
           v-if="errorMessage"
           color="error"
           variant="soft"
           :title="errorMessage"
           icon="i-lucide-circle-x"
-          :close-button="{
-            icon: 'i-lucide-x',
-            color: 'error',
-            variant: 'link',
-          }"
+          :close-button="{ icon: 'i-lucide-x', color: 'red', variant: 'link' }"
           @close="errorMessage = ''"
         />
 
@@ -176,6 +205,7 @@ useHead({
                 v-model="clientName"
                 placeholder="Contoh: Ibu Siti"
                 size="lg"
+                class="w-full"
                 required
               />
             </div>
@@ -191,55 +221,125 @@ useHead({
           </div>
         </div>
 
-        <!-- Measurements Fields -->
-        <div class="space-y-4">
+        <!-- QUICK INPUT GRID (Kayak Spreadsheet) -->
+        <div class="space-y-3">
           <div class="flex items-center justify-between">
             <h3
               class="font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2"
             >
               <span>📏</span> Ukuran (cm)
+              <span class="text-xs font-normal text-gray-500"
+                >- Tekan Enter untuk loncat ke field berikutnya</span
+              >
             </h3>
-            <UButton
-              type="button"
-              @click="showAddFieldModal = true"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-plus"
-              color="neutral"
-            >
-              Tambah Field
-            </UButton>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div
-              v-for="field in fields"
-              :key="field.id"
-              class="relative bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700"
-            >
-              <div class="flex items-start justify-between gap-2 mb-2">
-                <label
-                  class="text-xs font-medium text-gray-700 dark:text-gray-300 flex-1"
+          <!-- Table Grid -->
+          <div
+            class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+          >
+            <table class="w-full">
+              <thead class="bg-pink-100 dark:bg-pink-950/30">
+                <tr>
+                  <th
+                    class="text-left p-3 text-sm font-semibold text-gray-700 dark:text-gray-300 w-2/5"
+                  >
+                    Nama Ukuran
+                  </th>
+                  <th
+                    class="text-left p-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
+                  >
+                    Nilai (cm)
+                  </th>
+                  <th class="w-12"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(field, index) in fields"
+                  :key="field.id"
+                  class="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                 >
-                  {{ field.name }}
-                </label>
-                <button
-                  v-if="fields.length > 1"
-                  type="button"
-                  @click="removeField(field.id)"
-                  class="text-gray-400 hover:text-red-500 transition-colors"
+                  <td class="p-3">
+                    <span
+                      class="text-sm font-medium text-gray-800 dark:text-gray-200"
+                    >
+                      {{ field.name }}
+                    </span>
+                  </td>
+                  <td class="p-3">
+                    <input
+                      v-model="field.value"
+                      type="text"
+                      :data-index="index"
+                      :data-field-id="field.id"
+                      placeholder="Masukkan nilai"
+                      @keydown="handleKeydown($event, index)"
+                      class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                    />
+                  </td>
+                  <td class="p-3 text-center">
+                    <button
+                      v-if="fields.length > 1"
+                      type="button"
+                      @click="removeField(field.id)"
+                      class="text-gray-400 hover:text-red-500 transition-colors p-1"
+                      title="Hapus field"
+                    >
+                      <UIcon name="i-lucide-x" class="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+
+                <!-- Quick Add Field Row -->
+                <tr
+                  v-if="isAddingField"
+                  class="border-t border-gray-200 dark:border-gray-700 bg-pink-50 dark:bg-pink-950/20"
                 >
-                  <UIcon name="i-lucide-x" class="w-4 h-4" />
-                </button>
-              </div>
-              <UInput
-                v-model="field.value"
-                type="text"
-                placeholder="0"
-                size="md"
-              />
-            </div>
+                  <td class="p-3">
+                    <input
+                      v-model="quickAddFieldName"
+                      type="text"
+                      placeholder="Nama field baru..."
+                      @keyup.enter="addCustomField"
+                      @keyup.esc="isAddingField = false"
+                      class="w-full px-3 py-2 text-sm border border-pink-300 dark:border-pink-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-pink-500 outline-none"
+                      autofocus
+                    />
+                  </td>
+                  <td class="p-3" colspan="2">
+                    <div class="flex gap-2">
+                      <button
+                        type="button"
+                        @click="addCustomField"
+                        class="px-3 py-1 text-sm bg-pink-500 text-white rounded-md hover:bg-pink-600 transition-colors"
+                      >
+                        Tambah
+                      </button>
+                      <button
+                        type="button"
+                        @click="isAddingField = false"
+                        class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                      >
+                        Batal
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+
+          <!-- Button Tambah Field -->
+          <button
+            v-if="!isAddingField"
+            type="button"
+            @click="isAddingField = true"
+            class="text-sm text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 font-medium flex items-center gap-2"
+          >
+            <UIcon name="i-lucide-plus" class="w-4 h-4" />
+            Tambah Field Custom
+          </button>
         </div>
 
         <!-- Notes Section -->
@@ -249,12 +349,13 @@ useHead({
           >
             📝 Catatan Tambahan
           </label>
-          <UTextarea
+          <textarea
             v-model="notes"
+            name="notes"
             placeholder="Contoh: A.line, Tangan balon, Veil, Payet simpel"
-            :rows="4"
-            size="lg"
-          />
+            rows="4"
+            class="w-full px-4 py-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none resize-none"
+          ></textarea>
           <p class="text-xs text-gray-500 dark:text-gray-400">
             Tulis catatan khusus seperti model, bahan, atau detail lainnya
           </p>
@@ -286,6 +387,7 @@ useHead({
             size="lg"
             variant="outline"
             color="neutral"
+            class="cursor-pointer"
             :disabled="loading"
           >
             <UIcon name="i-lucide-rotate-ccw" class="mr-2" />
@@ -294,41 +396,5 @@ useHead({
         </div>
       </form>
     </UCard>
-
-    <!-- Modal Add Custom Field -->
-    <UModal v-model="showAddFieldModal">
-      <UCard>
-        <template #header>
-          <h3 class="text-lg font-bold">Tambah Field Custom</h3>
-        </template>
-
-        <div class="space-y-4">
-          <div class="space-y-2">
-            <label class="block text-sm font-semibold">Nama Field</label>
-            <UInput
-              v-model="newFieldName"
-              placeholder="Contoh: Panjang Rok"
-              size="lg"
-              @keyup.enter="addCustomField"
-            />
-          </div>
-        </div>
-
-        <template #footer>
-          <div class="flex gap-2 justify-end">
-            <UButton variant="ghost" @click="showAddFieldModal = false">
-              Batal
-            </UButton>
-            <UButton
-              @click="addCustomField"
-              :disabled="!newFieldName.trim()"
-              class="bg-pink-500 hover:bg-pink-600"
-            >
-              Tambah
-            </UButton>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
   </div>
 </template>
