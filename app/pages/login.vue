@@ -30,9 +30,6 @@ const handleLogin = async () => {
   await router.push(redirectTo.value);
 };
 
-
-
-
 useHead({
   title: "Login - JeneryMF Tools",
 });
