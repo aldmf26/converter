@@ -27,11 +27,9 @@ const handleLogin = async () => {
     return;
   }
 
-  // Tunggu Supabase update user state
-  await nextTick();
-
   await router.push(redirectTo.value);
 };
+
 
 
 

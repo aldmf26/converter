@@ -1,12 +1,11 @@
-export default defineNuxtRouteMiddleware((to) => {
-  const user = useSupabaseUser();
+export default defineNuxtRouteMiddleware(async (to) => {
+  const supabase = useSupabaseClient();
 
-  // ⏳ TUNGGU dulu state auth siap
-  if (user.value === undefined) {
-    return;
-  }
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user.value) {
+  if (!session) {
     return navigateTo({
       path: "/login",
       query: { redirect: to.fullPath },
