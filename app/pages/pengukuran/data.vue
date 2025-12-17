@@ -20,7 +20,9 @@ const selectedName = ref("");
 // Helper untuk ambil nilai Armhole dengan aman
 const getArmholeValue = (measurements: any[]) => {
   if (!Array.isArray(measurements)) return null;
-  const item = measurements.find(m => m.name === 'Armhole' || m.name === 'armhole');
+  const item = measurements.find(
+    (m) => m.name === "Armhole" || m.name === "armhole"
+  );
   if (!item || !item.value) return null;
   const num = Number(item.value);
   return isNaN(num) ? null : num;
@@ -28,7 +30,9 @@ const getArmholeValue = (measurements: any[]) => {
 
 const getArmholeDisplay = (measurements: any[]) => {
   if (!Array.isArray(measurements)) return null;
-  const item = measurements.find(m => m.name === 'Armhole' || m.name === 'armhole');
+  const item = measurements.find(
+    (m) => m.name === "Armhole" || m.name === "armhole"
+  );
   return item ? item.value : null;
 };
 
@@ -88,7 +92,7 @@ const handleDelete = async () => {
     toast.add({
       title: "Berhasil!",
       description: "Data berhasil dihapus",
-      color: "green",
+      color: "success",
     });
 
     await fetchMeasurements();
@@ -96,7 +100,7 @@ const handleDelete = async () => {
     toast.add({
       title: "Error",
       description: err.message || "Gagal menghapus data",
-      color: "red",
+      color: "error",
     });
   } finally {
     deleteModal.value = false;
@@ -277,8 +281,12 @@ useHead({
             <summary
               class="cursor-pointer text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 hover:text-pink-600 transition-colors select-none list-none"
             >
-              <span class="group-open:rotate-90 transition-transform text-pink-500">▶</span>
-              💪 Ringkasan Armhole ({{ getArmholeDisplay(item.measurements) }} cm)
+              <span
+                class="group-open:rotate-90 transition-transform text-pink-500"
+                >▶</span
+              >
+              💪 Ringkasan Armhole ({{ getArmholeDisplay(item.measurements) }}
+              cm)
             </summary>
 
             <div class="mt-4">
@@ -302,40 +310,44 @@ useHead({
     </UCard>
 
     <!-- Delete Confirmation Modal -->
-    <UModal v-model="deleteModal">
-      <UCard>
-        <template #header>
-          <div class="flex items-center gap-2">
-            <UIcon name="i-lucide-alert-triangle" class="w-5 h-5 text-red-500" />
-            <h3 class="text-lg font-bold">Konfirmasi Hapus</h3>
-          </div>
-        </template>
+    <UModal title="Konfirmasi Hapus" v-model:open="deleteModal">
+      <template #body>
+        <UCard>
+          <template #header>
+            <div class="flex items-center gap-2">
+              <UIcon
+                name="i-lucide-alert-triangle"
+                class="w-5 h-5 text-red-500"
+              />
+            </div>
+          </template>
 
-        <div class="space-y-4">
-          <p class="text-gray-700 dark:text-gray-300">
-            Apakah Anda yakin ingin menghapus data pengukuran untuk:
-          </p>
-          <p class="font-bold text-lg text-pink-600">{{ selectedName }}</p>
-          <p class="text-sm text-gray-500">
-            Data yang dihapus tidak dapat dikembalikan.
-          </p>
-        </div>
-
-        <template #footer>
-          <div class="flex gap-2 justify-end">
-            <UButton variant="ghost" @click="deleteModal = false">
-              Batal
-            </UButton>
-            <UButton
-              @click="handleDelete"
-              color="red"
-              class="bg-red-500 hover:bg-red-600"
-            >
-              Hapus
-            </UButton>
+          <div class="space-y-4">
+            <p class="text-gray-700 dark:text-gray-300">
+              Apakah Anda yakin ingin menghapus data pengukuran untuk:
+            </p>
+            <p class="font-bold text-lg text-pink-600">{{ selectedName }}</p>
+            <p class="text-sm text-gray-500">
+              Data yang dihapus tidak dapat dikembalikan.
+            </p>
           </div>
-        </template>
-      </UCard>
+
+          <template #footer>
+            <div class="flex gap-2 justify-end">
+              <UButton variant="ghost" @click="deleteModal = false">
+                Batal
+              </UButton>
+              <UButton
+                @click="handleDelete"
+                color="error"
+                class="bg-red-500 hover:bg-red-600"
+              >
+                Hapus
+              </UButton>
+            </div>
+          </template>
+        </UCard>
+      </template>
     </UModal>
   </div>
 </template>
