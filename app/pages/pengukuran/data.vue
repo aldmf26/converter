@@ -5,12 +5,17 @@ definePageMeta({
 });
 
 const supabase = useSupabaseClient();
+const router = useRouter();
+const toast = useToast();
 
 // state
 const measurements = ref<any[]>([]);
 const searchQuery = ref("");
 const loading = ref(false);
 const errorMessage = ref("");
+const deleteModal = ref(false);
+const selectedId = ref<string | null>(null);
+const selectedName = ref("");
 
 // Helper untuk ambil nilai Armhole dengan aman
 const getArmholeValue = (measurements: any[]) => {
@@ -54,6 +59,48 @@ const fetchMeasurements = async () => {
     errorMessage.value = err.message || "Gagal mengambil data";
   } finally {
     loading.value = false;
+  }
+};
+
+// Edit - redirect ke halaman edit
+const handleEdit = (id: string) => {
+  router.push(`/pengukuran/edit/${id}`);
+};
+
+// Delete
+const openDeleteModal = (id: string, name: string) => {
+  selectedId.value = id;
+  selectedName.value = name;
+  deleteModal.value = true;
+};
+
+const handleDelete = async () => {
+  if (!selectedId.value) return;
+
+  try {
+    const { error } = await supabase
+      .from("measurements")
+      .delete()
+      .eq("id", selectedId.value);
+
+    if (error) throw error;
+
+    toast.add({
+      title: "Berhasil!",
+      description: "Data berhasil dihapus",
+      color: "green",
+    });
+
+    await fetchMeasurements();
+  } catch (err: any) {
+    toast.add({
+      title: "Error",
+      description: err.message || "Gagal menghapus data",
+      color: "red",
+    });
+  } finally {
+    deleteModal.value = false;
+    selectedId.value = null;
   }
 };
 
@@ -165,6 +212,7 @@ useHead({
             <div class="flex gap-2">
               <UTooltip text="Edit">
                 <UButton
+                  @click="handleEdit(item.id)"
                   variant="soft"
                   color="info"
                   icon="i-lucide-pencil"
@@ -174,6 +222,7 @@ useHead({
               </UTooltip>
               <UTooltip text="Hapus">
                 <UButton
+                  @click="openDeleteModal(item.id, item.client_name)"
                   variant="soft"
                   color="error"
                   icon="i-lucide-trash-2"
@@ -251,5 +300,42 @@ useHead({
         </div>
       </div>
     </UCard>
+
+    <!-- Delete Confirmation Modal -->
+    <UModal v-model="deleteModal">
+      <UCard>
+        <template #header>
+          <div class="flex items-center gap-2">
+            <UIcon name="i-lucide-alert-triangle" class="w-5 h-5 text-red-500" />
+            <h3 class="text-lg font-bold">Konfirmasi Hapus</h3>
+          </div>
+        </template>
+
+        <div class="space-y-4">
+          <p class="text-gray-700 dark:text-gray-300">
+            Apakah Anda yakin ingin menghapus data pengukuran untuk:
+          </p>
+          <p class="font-bold text-lg text-pink-600">{{ selectedName }}</p>
+          <p class="text-sm text-gray-500">
+            Data yang dihapus tidak dapat dikembalikan.
+          </p>
+        </div>
+
+        <template #footer>
+          <div class="flex gap-2 justify-end">
+            <UButton variant="ghost" @click="deleteModal = false">
+              Batal
+            </UButton>
+            <UButton
+              @click="handleDelete"
+              color="red"
+              class="bg-red-500 hover:bg-red-600"
+            >
+              Hapus
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
   </div>
 </template>

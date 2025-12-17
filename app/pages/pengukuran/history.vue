@@ -4,69 +4,71 @@ definePageMeta({
   layout: "dashboard",
 });
 
-// Dummy history data
-const historyData = ref([
-  {
-    id: 1,
-    action: "Menambah pengukuran baru",
-    name: "Ibu Siti",
-    date: "15 Des 2024 14:30",
-    type: "create",
-  },
-  {
-    id: 2,
-    action: "Mengedit pengukuran",
-    name: "Ibu Ani",
-    date: "13 Des 2024 10:15",
-    type: "update",
-  },
-  {
-    id: 3,
-    action: "Menghapus pengukuran",
-    name: "Ibu Rina",
-    date: "12 Des 2024 16:45",
-    type: "delete",
-  },
-  {
-    id: 4,
-    action: "Menambah pengukuran baru",
-    name: "Ibu Dewi",
-    date: "10 Des 2024 09:20",
-    type: "create",
-  },
-  {
-    id: 5,
-    action: "Mengedit pengukuran",
-    name: "Ibu Siti",
-    date: "08 Des 2024 11:00",
-    type: "update",
-  },
-]);
+const supabase = useSupabaseClient();
 
-const getActionIcon = (type: string) => {
-  switch (type) {
-    case "create":
-      return "i-lucide-plus-circle";
-    case "update":
-      return "i-lucide-pencil";
-    case "delete":
-      return "i-lucide-trash-2";
-    default:
-      return "i-lucide-activity";
+const historyData = ref<any[]>([]);
+const loading = ref(false);
+
+const fetchHistory = async () => {
+  loading.value = true;
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session?.user) return;
+
+    const { data, error } = await supabase
+      .from("activity_logs")
+      .select("*")
+      .eq("user_id", session.user.id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (!error) historyData.value = data || [];
+  } catch (err) {
+    console.error(err);
+  } finally {
+    loading.value = false;
   }
 };
 
+onMounted(fetchHistory);
+
+const getActionIcon = (type: string) => {
+  const icons: Record<string, string> = {
+    create: "i-lucide-plus-circle",
+    update: "i-lucide-pencil",
+    delete: "i-lucide-trash-2",
+  };
+  return icons[type] || "i-lucide-activity";
+};
+
 const getActionColor = (type: string) => {
-  switch (type) {
-    case "create":
-      return "green";
-    case "update":
-      return "blue";
-    case "delete":
-      return "red";
-    default:
-      return "gray";
-  }
+  const colors: Record<string, string> = {
+    create: "info",
+    update: "primary",
+    delete: "error",
+  };
+  return colors[type] || "info";
+};
+
+const getActionText = (type: string) => {
+  const texts: Record<string, string> = {
+    create: "Menambah pengukuran baru",
+    update: "Mengedit pengukuran",
+    delete: "Menghapus pengukuran",
+  };
+  return texts[type] || "Aktivitas";
+};
+
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
 useHead({
@@ -80,21 +82,27 @@ useHead({
       <template #header>
         <div class="flex items-center justify-between">
           <h2
-            class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent"
+            class="text-2xl sm:text-3xl font-bold text-pink-600 dark:text-pink-400"
           >
             📜 Riwayat Aktivitas
           </h2>
-          <UBadge color="neutral" variant="soft" size="lg">
+          <UBadge color="pink" variant="soft" size="lg">
             {{ historyData.length }} Aktivitas
           </UBadge>
         </div>
       </template>
 
-      <div class="space-y-3">
+      <!-- Loading -->
+      <div v-if="loading" class="text-center py-12">
+        <div class="text-4xl mb-2">⏳</div>
+        <p class="text-sm text-gray-500">Memuat riwayat...</p>
+      </div>
+
+      <div v-else class="space-y-3">
         <!-- Timeline -->
-        <div class="relative">
+        <div v-if="historyData.length > 0" class="relative">
           <div
-            class="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-pink-300 to-purple-300 dark:from-pink-700 dark:to-purple-700"
+            class="absolute left-6 top-0 bottom-0 w-0.5 bg-pink-300 dark:bg-pink-700"
           ></div>
 
           <div
@@ -105,41 +113,39 @@ useHead({
           >
             <!-- Icon -->
             <div
-              class="absolute left-0 w-12 h-12 rounded-full flex items-center justify-center"
+              class="absolute left-0 w-12 h-12 rounded-full flex items-center justify-center border-4 border-white dark:border-gray-900"
               :class="`bg-${getActionColor(
-                item.type
-              )}-100 dark:bg-${getActionColor(
-                item.type
-              )}-900 border-4 border-white dark:border-gray-900`"
+                item.action_type
+              )}-100 dark:bg-${getActionColor(item.action_type)}-900`"
             >
               <UIcon
-                :name="getActionIcon(item.type)"
-                :class="`w-6 h-6 text-${getActionColor(item.type)}-600`"
+                :name="getActionIcon(item.action_type)"
+                :class="`w-6 h-6 text-${getActionColor(item.action_type)}-600`"
               />
             </div>
 
             <!-- Content -->
             <div
-              class="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-lg p-4 border-2 border-pink-200 dark:border-pink-900 hover:border-pink-300 dark:hover:border-pink-700 transition-all"
+              class="bg-pink-50 dark:bg-pink-950/20 rounded-lg p-4 border-2 border-pink-200 dark:border-pink-800 hover:border-pink-300 dark:hover:border-pink-700 transition-all"
             >
               <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
                   <h4 class="font-bold text-gray-800 dark:text-gray-200 mb-1">
-                    {{ item.action }}
+                    {{ getActionText(item.action_type) }}
                   </h4>
                   <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    Client: <strong>{{ item.name }}</strong>
+                    Client: <strong>{{ item.client_name }}</strong>
                   </p>
-                  <p class="text-xs text-gray-500 dark:text-gray-500">
-                    {{ item.date }}
+                  <p class="text-xs text-gray-500">
+                    {{ formatDate(item.created_at) }}
                   </p>
                 </div>
                 <UBadge
-                  :color="getActionColor(item.type)"
+                  :color="getActionColor(item.action_type)"
                   variant="soft"
                   size="sm"
                 >
-                  {{ item.type }}
+                  {{ item.action_type }}
                 </UBadge>
               </div>
             </div>
@@ -147,10 +153,7 @@ useHead({
         </div>
 
         <!-- Empty State -->
-        <div
-          v-if="historyData.length === 0"
-          class="text-center py-12 space-y-4"
-        >
+        <div v-else class="text-center py-12 space-y-4">
           <div class="text-6xl">📭</div>
           <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">
             Belum ada riwayat
