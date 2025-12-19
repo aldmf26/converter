@@ -357,7 +357,7 @@ useHead({
                 </tr>
               </tbody>
             </table>
-          </div>
+          </div> 
 
           <!-- Button Tambah Field -->
           <button

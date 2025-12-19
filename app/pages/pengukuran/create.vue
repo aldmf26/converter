@@ -292,7 +292,7 @@ useHead({
                       :data-field-id="field.id"
                       placeholder="Masukkan nilai"
                       @keydown="handleKeydown($event, index)"
-                                            @focus="($event.target as HTMLInputElement).select()"
+                      @focus="($event.target as HTMLInputElement).select()"
                       class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
                     />
                   </td>
