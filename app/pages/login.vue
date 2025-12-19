@@ -39,6 +39,7 @@ useHead({
   <UCard variant="subtle" class="w-full max-w-md shadow-lg">
     <template #header>
       <div class="text-center space-y-3">
+        <img src="/img/logo.png" alt="Logo JeneryMF Tools" class="mx-auto h-16 w-16" />
         <div class="text-4xl sm:text-5xl">🔐</div>
         <h2
           class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent"
